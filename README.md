@@ -1,6 +1,6 @@
 php-color-extractor
 ===============
-[![Build Status](https://travis-ci.org/bensquire/php-color-extractor.png)](https://travis-ci.org/bensquire/php-color-extractor)
+[![Build Status](https://travis-ci.org/bensquire/php-color-extractor.png?branch=master)](https://travis-ci.org/bensquire/php-color-extractor)
 
 The purpose of this library is to extract the main colour(s) from images. Taken from the stackoverflow answer:
 
