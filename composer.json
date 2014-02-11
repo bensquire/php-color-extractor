@@ -1,7 +1,7 @@
 {
     "name": "bensquire/php-color-extractor",
     "type": "library",
-    "description": "A library to the primary colours from an image",
+    "description": "A simple class to extract the primary colours from an image.",
     "keywords": ["image", "php", "color", "colour", "extract"],
     "homepage": "https://github.com/bensquire/php-color-extractor",
     "license": "MIT",

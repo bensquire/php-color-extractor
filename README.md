@@ -4,23 +4,14 @@ php-color-extractor
 
 The purpose of this library is to extract the main colour(s) from images. Taken from the stackoverflow answer:
 
-    http://stackoverflow.com/questions/3468500/detect-overall-average-color-of-the-picture?answertab=active#tab-top
+    (http://stackoverflow.com/questions/3468500/detect-overall-average-color-of-the-picture?answertab=active#tab-top)
 
 Installation:
 -------------
-The library is PSR-0 compliant and the simplest way to install it is via composer, at the moment it isn't part of the
-main composer package library so it can be included by putting:
+The library is PSR-0 compliant and the simplest way to install it is via composer, simply add the requirement:
 
-    {
-        "repositories": [
-            {
-                "type": "vcs",
-                "url": "https://github.com/bensquire/php-color-extractor"
-            }
-        ],
-        "require": {
-            "bensquire/php-color-extractor": "master"
-        }
+    "require": {
+        "bensquire/php-color-extractor": "dev-master"
     }
 
 into your composer.json, then run 'composer install' or 'composer update' as required.
@@ -28,7 +19,7 @@ into your composer.json, then run 'composer install' or 'composer update' as req
 
 Example:
 --------
-This example demonstrates the optimisation of a PNG file, by chaining several commands together.
+This example demonstrates the extraction of colors from an image file:
 
     <?php
         include('../vendor/autoload.php');  //As needed
