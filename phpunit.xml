@@ -2,7 +2,7 @@
 <phpunit colors="true" verbose="true" bootstrap="./tests/Bootstrap.php">
     <testsuites>
         <testsuite name="PHPColorExtractor Tests">
-            <directory suffix="Test.php" phpVersion="5.3.0" phpVersionOperator=">=">tests/PHPColorExtractor</directory>
+            <directory suffix="Test.php" phpVersion="5.6.0" phpVersionOperator=">=">tests/PHPColorExtractor</directory>
         </testsuite>
     </testsuites>
 
