@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit colors="true" verbose="true" bootstrap="./tests/Bootstrap.php">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd"
+         bootstrap="./tests/Bootstrap.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnTestsThatTriggerWarnings="true">
     <testsuites>
         <testsuite name="PHPColorExtractor Tests">
-            <directory suffix="Test.php" phpVersion="5.6.0" phpVersionOperator=">=">tests/PHPColorExtractor</directory>
+            <directory suffix="Test.php">tests/PHPColorExtractor</directory>
         </testsuite>
     </testsuites>
 
-    <logging>
-        <log type="coverage-html" target="build/coverage" title="bensquire/php-color-extractor" charset="UTF-8" yui="true" highlight="true" lowUpperBound="50" highLowerBound="90"/>
-        <log type="coverage-text" target="php://stdout" title="bensquire/php-color-extractor" charset="UTF-8" yui="true" highlight="true" lowUpperBound="50" highLowerBound="90"/>
-        <log type="coverage-clover" target="build/logs/clover.xml"/>
-        <log type="junit" target="build/logs/junit.xml" logIncompleteSkipped="false"/>
-    </logging>
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
 </phpunit>

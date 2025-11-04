@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace PHPColorExtractor;
 
 use Exception;
@@ -11,18 +14,18 @@ use Exception;
  */
 class PHPColorExtractor
 {
-    protected $image;
-    protected $totalColors = 10;
-    protected $granularity = 5;
+    protected ?string $image = null;
+    protected int $totalColors = 10;
+    protected int $granularity = 5;
 
     /**
      * Set the image we want to extract the colours from
      *
-     * @param $image
+     * @param string $image
      * @return $this
      * @throws Exception
      */
-    public function setImage($image)
+    public function setImage(string $image): self
     {
         if (!file_exists($image)) {
             throw new Exception('Unable to find provided image');
@@ -39,14 +42,13 @@ class PHPColorExtractor
      * @return $this
      * @throws Exception
      */
-    public function setTotalColors($totalColors = 10)
+    public function setTotalColors(int $totalColors = 10): self
     {
-        if (!is_int($totalColors))
-        {
+        if ($totalColors <= 0) {
             throw new Exception('Invalid total Colors: ' . $totalColors);
         }
 
-        $this->totalColors = (int)$totalColors;
+        $this->totalColors = $totalColors;
         return $this;
     }
 
@@ -57,45 +59,51 @@ class PHPColorExtractor
      * @return $this
      * @throws Exception
      */
-    public function setGranularity($granularity = 5)
+    public function setGranularity(int $granularity = 5): self
     {
-        if (!is_int($granularity))
-        {
-            throw new Exception('Invalid total Colors: ' . $granularity);
+        if ($granularity <= 0) {
+            throw new Exception('Invalid granularity: ' . $granularity);
         }
 
-        $this->granularity = max(1, abs((int)$granularity));
+        $this->granularity = max(1, abs($granularity));
         return $this;
     }
 
     /**
      * Extracts the colour palette of the set image
      *
-     * @return array
+     * @return array<int, string>
      * @throws Exception
      */
-    public function extractPalette()
+    public function extractPalette(): array
     {
-        if (is_null($this->image)) {
-            throw new Exception ('An image must be set before its palette can be extracted.');
+        if ($this->image === null) {
+            throw new Exception('An image must be set before its palette can be extracted.');
         }
 
-        if (($size = getimagesize($this->image)) === false) {
+        $size = getimagesize($this->image);
+        if ($size === false) {
             throw new Exception("Unable to get image size data");
         }
 
-        if (($img = imagecreatefromstring(file_get_contents($this->image))) === false) {
+        $imageContent = file_get_contents($this->image);
+        if ($imageContent === false) {
+            throw new Exception("Unable to read image file");
+        }
+
+        $img = imagecreatefromstring($imageContent);
+        if ($img === false) {
             throw new Exception("Unable to open image file");
         }
 
-        $colors = array();
+        $colors = [];
 
         for ($x = 0; $x < $size[0]; $x += $this->granularity) {
             for ($y = 0; $y < $size[1]; $y += $this->granularity) {
                 $rgb = imagecolorsforindex($img, imagecolorat($img, $x, $y));
-                $red = round(round(($rgb['red'] / 0x33)) * 0x33);
-                $green = round(round(($rgb['green'] / 0x33)) * 0x33);
-                $blue = round(round(($rgb['blue'] / 0x33)) * 0x33);
+                $red = (int)round(round($rgb['red'] / 0x33) * 0x33);
+                $green = (int)round(round($rgb['green'] / 0x33) * 0x33);
+                $blue = (int)round(round($rgb['blue'] / 0x33) * 0x33);
                 $thisRGB = sprintf('%02X%02X%02X', $red, $green, $blue);
 
                 if (array_key_exists($thisRGB, $colors)) {
