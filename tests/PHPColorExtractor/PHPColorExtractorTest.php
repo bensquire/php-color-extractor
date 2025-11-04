@@ -1,74 +1,130 @@
 <?php
 
+declare(strict_types=1);
+
+namespace PHPColorExtractor\Tests;
+
+use Exception;
 use PHPColorExtractor\PHPColorExtractor;
+use PHPUnit\Framework\TestCase;
 
-class PHPColorExtractorTest extends PHPUnit_Framework_TestCase
+class PHPColorExtractorTest extends TestCase
 {
-    public function setUp()
+    protected function setUp(): void
     {
-
+        // Setup code can go here if needed
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testSetImageError()
+    public function testSetImageError(): void
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Unable to find provided image');
+
         $object = new PHPColorExtractor();
         $object->setImage('./tests/pdfs/missing.pdf');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testSetTotalColorsError()
+    public function testSetTotalColorsErrorWithInvalidType(): void
     {
+        $this->expectException(\TypeError::class);
+
         $object = new PHPColorExtractor();
+        /** @phpstan-ignore-next-line */
         $object->setTotalColors('1s1s');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testSetGranularityErro()
+    public function testSetTotalColorsErrorWithNegativeValue(): void
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid total Colors');
+
         $object = new PHPColorExtractor();
+        $object->setTotalColors(-5);
+    }
+
+    public function testSetGranularityErrorWithInvalidType(): void
+    {
+        $this->expectException(\TypeError::class);
+
+        $object = new PHPColorExtractor();
+        /** @phpstan-ignore-next-line */
         $object->setGranularity('1s1s');
     }
 
-    /**
-     * @expectedException \Exception
-     */
-    public function testExtractPaletteError()
+    public function testSetGranularityErrorWithNegativeValue(): void
     {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid granularity');
+
         $object = new PHPColorExtractor();
-        $object->extractPalette(20);
+        $object->setGranularity(-5);
     }
 
-    public function testSetImage()
+    public function testExtractPaletteError(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('An image must be set before its palette can be extracted');
+
+        $object = new PHPColorExtractor();
+        $object->extractPalette();
+    }
+
+    public function testSetImage(): void
+    {
+        $object = new PHPColorExtractor();
+        $result = $object->setImage('./tests/image/lenna.png');
+
+        $this->assertInstanceOf(PHPColorExtractor::class, $result);
+    }
+
+    public function testSetTotalColors(): void
+    {
+        $object = new PHPColorExtractor();
+        $result = $object->setTotalColors(10);
+
+        $this->assertInstanceOf(PHPColorExtractor::class, $result);
+    }
+
+    public function testSetGranularity(): void
+    {
+        $object = new PHPColorExtractor();
+        $result = $object->setGranularity(20);
+
+        $this->assertInstanceOf(PHPColorExtractor::class, $result);
+    }
+
+    public function testExtractPalette(): void
     {
         $object = new PHPColorExtractor();
         $object->setImage('./tests/image/lenna.png');
-    }
+        $palette = $object->extractPalette();
 
-    public function testSetTotalColors()
-    {
-        $object = new PHPColorExtractor();
-        $object->setTotalColors(10);
-    }
-
-    public function testSetGranularity()
-    {
-        $object = new PHPColorExtractor();
-        $object->setGranularity(20);
-    }
-
-    public function testExtractPalette()
-    {
-        $object = new PHPColorExtractor();
-        $object->setImage('./tests/image/lenna.png');
-        $palette = $object->extractPalette(20);
-
+        $this->assertIsArray($palette);
+        $this->assertCount(10, $palette);
         $this->assertEquals('CC6666', $palette[0]);
+    }
+
+    public function testExtractPaletteWithCustomColorCount(): void
+    {
+        $object = new PHPColorExtractor();
+        $object->setImage('./tests/image/lenna.png');
+        $object->setTotalColors(5);
+        $palette = $object->extractPalette();
+
+        $this->assertIsArray($palette);
+        $this->assertCount(5, $palette);
+    }
+
+    public function testFluentInterface(): void
+    {
+        $object = new PHPColorExtractor();
+        $palette = $object
+            ->setImage('./tests/image/lenna.png')
+            ->setTotalColors(15)
+            ->setGranularity(10)
+            ->extractPalette();
+
+        $this->assertIsArray($palette);
+        $this->assertCount(15, $palette);
     }
 }
