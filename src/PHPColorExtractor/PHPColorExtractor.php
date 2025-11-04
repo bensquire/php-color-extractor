@@ -100,7 +100,12 @@ class PHPColorExtractor
 
         for ($x = 0; $x < $size[0]; $x += $this->granularity) {
             for ($y = 0; $y < $size[1]; $y += $this->granularity) {
-                $rgb = imagecolorsforindex($img, imagecolorat($img, $x, $y));
+                $colorIndex = imagecolorat($img, $x, $y);
+                if ($colorIndex === false) {
+                    continue;
+                }
+
+                $rgb = imagecolorsforindex($img, $colorIndex);
                 $red = (int)round(round($rgb['red'] / 0x33) * 0x33);
                 $green = (int)round(round($rgb['green'] / 0x33) * 0x33);
                 $blue = (int)round(round($rgb['blue'] / 0x33) * 0x33);
