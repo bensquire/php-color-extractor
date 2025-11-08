@@ -99,7 +99,6 @@ class PHPColorExtractorTest extends TestCase
         $object->setImage('./tests/image/lenna.png');
         $palette = $object->extractPalette();
 
-        $this->assertIsArray($palette);
         $this->assertCount(10, $palette);
         $this->assertEquals('CC6666', $palette[0]);
     }
@@ -111,7 +110,6 @@ class PHPColorExtractorTest extends TestCase
         $object->setTotalColors(5);
         $palette = $object->extractPalette();
 
-        $this->assertIsArray($palette);
         $this->assertCount(5, $palette);
     }
 
@@ -124,7 +122,6 @@ class PHPColorExtractorTest extends TestCase
             ->setGranularity(10)
             ->extractPalette();
 
-        $this->assertIsArray($palette);
         $this->assertCount(15, $palette);
     }
 }

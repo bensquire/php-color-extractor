@@ -32,6 +32,7 @@ class PHPColorExtractor
         }
 
         $this->image = $image;
+
         return $this;
     }
 
@@ -49,6 +50,7 @@ class PHPColorExtractor
         }
 
         $this->totalColors = $totalColors;
+
         return $this;
     }
 
@@ -66,6 +68,7 @@ class PHPColorExtractor
         }
 
         $this->granularity = max(1, abs($granularity));
+
         return $this;
     }
 
@@ -83,30 +86,35 @@ class PHPColorExtractor
 
         $size = getimagesize($this->image);
         if ($size === false) {
-            throw new Exception("Unable to get image size data");
+            throw new Exception('Unable to get image size data');
         }
 
         $imageContent = file_get_contents($this->image);
         if ($imageContent === false) {
-            throw new Exception("Unable to read image file");
+            throw new Exception('Unable to read image file');
         }
 
         $img = imagecreatefromstring($imageContent);
         if ($img === false) {
-            throw new Exception("Unable to open image file");
+            throw new Exception('Unable to open image file');
         }
 
         $colors = [];
 
         for ($x = 0; $x < $size[0]; $x += $this->granularity) {
             for ($y = 0; $y < $size[1]; $y += $this->granularity) {
-                $rgb = imagecolorsforindex($img, imagecolorat($img, $x, $y));
-                $red = (int)round(round($rgb['red'] / 0x33) * 0x33);
-                $green = (int)round(round($rgb['green'] / 0x33) * 0x33);
-                $blue = (int)round(round($rgb['blue'] / 0x33) * 0x33);
-                $thisRGB = sprintf('%02X%02X%02X', $red, $green, $blue);
+                $colorIndex = imagecolorat($img, $x, $y);
+                if ($colorIndex === false) {
+                    continue;
+                }
 
-                if (array_key_exists($thisRGB, $colors)) {
+                $rgb = imagecolorsforindex($img, $colorIndex);
+                $red = (int) round(round($rgb['red'] / 0x33) * 0x33);
+                $green = (int) round(round($rgb['green'] / 0x33) * 0x33);
+                $blue = (int) round(round($rgb['blue'] / 0x33) * 0x33);
+                $thisRGB = \sprintf('%02X%02X%02X', $red, $green, $blue);
+
+                if (\array_key_exists($thisRGB, $colors)) {
                     $colors[$thisRGB]++;
                 } else {
                     $colors[$thisRGB] = 1;
@@ -115,6 +123,7 @@ class PHPColorExtractor
         }
 
         arsort($colors);
-        return array_slice(array_keys($colors), 0, $this->totalColors);
+
+        return \array_slice(array_keys($colors), 0, $this->totalColors);
     }
 }
