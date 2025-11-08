@@ -41,6 +41,9 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
+      - name: Check code style with PHP CS Fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
+
       - name: Run PHPStan static analysis
         run: vendor/bin/phpstan analyse
 
