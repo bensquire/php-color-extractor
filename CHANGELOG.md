@@ -7,12 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.1] - 2026-02-28
+
 ### Added
 - PHPStan static analysis with maximum strictness level
 - PHPStan configuration file (phpstan.neon)
 - PHPStan checks in GitHub Actions workflow
 - Comprehensive README documentation with examples
 - CHANGELOG.md for tracking version history
+- RELEASING.md documenting the release process
 - Type safety with strict type declarations (`declare(strict_types=1)`)
 - Full type hints for all method parameters and return types
 - Nullable types where appropriate (`?string`)
@@ -45,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Outdated composer installation instructions
 - PSR-0 autoloading support
 
-## [1.0.0] - Historical
+## [Historical 1.0.0]
 
 ### Added
 - Initial release
@@ -55,4 +58,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PSR-0 autoloading
 - Basic test coverage
 
-[Unreleased]: https://github.com/bensquire/php-color-extractor/compare/master...HEAD
+[Unreleased]: https://github.com/bensquire/php-color-extractor/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/bensquire/php-color-extractor/releases/tag/v0.0.1
