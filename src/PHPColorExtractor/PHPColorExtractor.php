@@ -15,15 +15,15 @@ use GdImage;
  */
 class PHPColorExtractor
 {
-    protected ?string $image = null;
-    protected ?GdImage $gdImage = null;
+    protected ?string $imagePath = null;
+    private ?GdImage $gdImage = null;
     protected int $totalColors = 10;
     protected int $granularity = 5;
 
     /**
      * Set the image we want to extract the colours from
      *
-     * @param string $image
+     * @param string $image Path to the image file
      * @return $this
      * @throws Exception
      */
@@ -33,7 +33,7 @@ class PHPColorExtractor
             throw new Exception('Unable to find provided image');
         }
 
-        $this->image = $image;
+        $this->imagePath = $image;
         $this->gdImage = null;
 
         return $this;
@@ -49,14 +49,9 @@ class PHPColorExtractor
      */
     public function setImageFromString(string $data): self
     {
-        if ($data === '' || getimagesizefromstring($data) === false) {
-            throw new Exception('Unable to read provided image data');
-        }
-
-        $this->gdImage = $this->createImageFromString($data);
-        $this->image = null;
-
-        return $this;
+        return $this->setImageFromGd(
+            $this->decodeImage($data, 'Unable to read provided image data', 'Unable to decode provided image data'),
+        );
     }
 
     /**
@@ -68,7 +63,7 @@ class PHPColorExtractor
     public function setImageFromGd(GdImage $image): self
     {
         $this->gdImage = $image;
-        $this->image = null;
+        $this->imagePath = null;
 
         return $this;
     }
@@ -117,7 +112,11 @@ class PHPColorExtractor
      */
     public function extractPalette(): array
     {
-        $img = $this->gdImage ?? $this->loadImageFromPath();
+        if ($this->gdImage === null && $this->imagePath === null) {
+            throw new Exception('An image must be set before its palette can be extracted.');
+        }
+
+        $img = $this->gdImage ?? $this->loadImageFromPath($this->imagePath);
         $width = imagesx($img);
         $height = imagesy($img);
 
@@ -154,32 +153,31 @@ class PHPColorExtractor
      *
      * @throws Exception
      */
-    private function loadImageFromPath(): GdImage
+    private function loadImageFromPath(string $path): GdImage
     {
-        if ($this->image === null) {
-            throw new Exception('An image must be set before its palette can be extracted.');
-        }
-
-        if (getimagesize($this->image) === false) {
-            throw new Exception('Unable to get image size data');
-        }
-
-        $imageContent = file_get_contents($this->image);
+        $imageContent = file_get_contents($path);
         if ($imageContent === false) {
             throw new Exception('Unable to read image file');
         }
 
-        return $this->createImageFromString($imageContent);
+        return $this->decodeImage($imageContent, 'Unable to get image size data', 'Unable to open image file');
     }
 
     /**
+     * Decodes binary image data, throwing the given messages if it isn't a
+     * recognised image or GD can't decode it
+     *
      * @throws Exception
      */
-    private function createImageFromString(string $data): GdImage
+    private function decodeImage(string $data, string $unrecognisedMessage, string $decodeFailedMessage): GdImage
     {
+        if ($data === '' || getimagesizefromstring($data) === false) {
+            throw new Exception($unrecognisedMessage);
+        }
+
         $img = imagecreatefromstring($data);
         if ($img === false) {
-            throw new Exception('Unable to open image file');
+            throw new Exception($decodeFailedMessage);
         }
 
         return $img;

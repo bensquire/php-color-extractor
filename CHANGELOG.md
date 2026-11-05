@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `setImageFromString(string $data)` to extract a palette from raw image data (uploads, storage responses, images fetched over HTTP by the caller) without writing a temporary file
 - `setImageFromGd(GdImage $image)` to extract a palette from an existing GD image
 
+### Changed
+- Renamed the protected `$image` property to `$imagePath`, since it holds a file path. This only affects classes that extend `PHPColorExtractor` and read the property directly.
+- Images set with `setImage()` are now read from disk once per `extractPalette()` call instead of twice
+
 ## [1.0.1] - 2026-11-05
 
 Development tooling only; no changes to the library code or its runtime requirements.

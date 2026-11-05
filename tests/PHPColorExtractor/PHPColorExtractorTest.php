@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace PHPColorExtractor\Tests;
 
 use Exception;
+use GdImage;
 use PHPColorExtractor\PHPColorExtractor;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 class PHPColorExtractorTest extends TestCase
 {
+    private const string LENNA = './tests/image/lenna.png';
+
     protected function setUp(): void
     {
         // Setup code can go here if needed
@@ -99,7 +103,7 @@ class PHPColorExtractorTest extends TestCase
         $object = new PHPColorExtractor();
 
         // Act
-        $result = $object->setImage('./tests/image/lenna.png');
+        $result = $object->setImage(self::LENNA);
 
         // Assert
         $this->assertInstanceOf(PHPColorExtractor::class, $result);
@@ -133,7 +137,7 @@ class PHPColorExtractorTest extends TestCase
     {
         // Arrange
         $object = new PHPColorExtractor();
-        $object->setImage('./tests/image/lenna.png');
+        $object->setImage(self::LENNA);
 
         // Act
         $palette = $object->extractPalette();
@@ -147,7 +151,7 @@ class PHPColorExtractorTest extends TestCase
     {
         // Arrange
         $object = new PHPColorExtractor();
-        $object->setImage('./tests/image/lenna.png');
+        $object->setImage(self::LENNA);
         $object->setTotalColors(5);
 
         // Act
@@ -164,7 +168,7 @@ class PHPColorExtractorTest extends TestCase
 
         // Act
         $palette = $object
-            ->setImage('./tests/image/lenna.png')
+            ->setImage(self::LENNA)
             ->setTotalColors(15)
             ->setGranularity(10)
             ->extractPalette();
@@ -176,18 +180,20 @@ class PHPColorExtractorTest extends TestCase
     public function testSetImageFromStringMatchesSetImage(): void
     {
         // Arrange
-        $data = file_get_contents('./tests/image/lenna.png');
+        $data = file_get_contents(self::LENNA);
         $this->assertIsString($data);
 
         // Act
-        $fromPath = (new PHPColorExtractor())->setImage('./tests/image/lenna.png')->extractPalette();
+        $fromPath = (new PHPColorExtractor())->setImage(self::LENNA)->extractPalette();
         $fromString = (new PHPColorExtractor())->setImageFromString($data)->extractPalette();
 
         // Assert
         $this->assertSame($fromPath, $fromString);
     }
 
-    public function testSetImageFromStringErrorWithInvalidData(): void
+    #[TestWith(['not an image'])]
+    #[TestWith([''])]
+    public function testSetImageFromStringErrorWithInvalidData(string $data): void
     {
         // Arrange
         $object = new PHPColorExtractor();
@@ -197,27 +203,13 @@ class PHPColorExtractorTest extends TestCase
         $this->expectExceptionMessage('Unable to read provided image data');
 
         // Act
-        $object->setImageFromString('not an image');
-    }
-
-    public function testSetImageFromStringErrorWithEmptyData(): void
-    {
-        // Arrange
-        $object = new PHPColorExtractor();
-
-        // Assert
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Unable to read provided image data');
-
-        // Act
-        $object->setImageFromString('');
+        $object->setImageFromString($data);
     }
 
     public function testSetImageFromGd(): void
     {
-        // Arrange
-        $img = imagecreatetruecolor(20, 10);
-        $this->assertNotFalse($img);
+        // Arrange: 15 columns of red, 5 columns of blue
+        $img = $this->createGdImage(20, 10);
         $red = imagecolorallocate($img, 255, 0, 0);
         $blue = imagecolorallocate($img, 0, 0, 255);
         $this->assertNotFalse($red);
@@ -238,12 +230,11 @@ class PHPColorExtractorTest extends TestCase
     public function testSetImageAfterSetImageFromGdUsesPath(): void
     {
         // Arrange
-        $img = imagecreatetruecolor(4, 4);
-        $this->assertNotFalse($img);
+        $img = $this->createGdImage(4, 4);
         $object = (new PHPColorExtractor())->setImageFromGd($img);
 
         // Act
-        $palette = $object->setImage('./tests/image/lenna.png')->extractPalette();
+        $palette = $object->setImage(self::LENNA)->extractPalette();
 
         // Assert
         $this->assertSame('CC6666', $palette[0]);
@@ -252,14 +243,24 @@ class PHPColorExtractorTest extends TestCase
     public function testSetImageFromGdAfterSetImageUsesGdImage(): void
     {
         // Arrange
-        $img = imagecreatetruecolor(4, 4);
-        $this->assertNotFalse($img);
-        $object = (new PHPColorExtractor())->setImage('./tests/image/lenna.png');
+        $img = $this->createGdImage(4, 4);
+        $object = (new PHPColorExtractor())->setImage(self::LENNA);
 
         // Act
         $palette = $object->setImageFromGd($img)->extractPalette();
 
         // Assert
         $this->assertSame(['000000'], $palette);
+    }
+
+    /**
+     * Creates a black truecolor image
+     */
+    private function createGdImage(int $width, int $height): GdImage
+    {
+        $img = imagecreatetruecolor(max(1, $width), max(1, $height));
+        $this->assertNotFalse($img);
+
+        return $img;
     }
 }
