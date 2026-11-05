@@ -11,6 +11,7 @@ A modern PHP library to extract the dominant color palette from images.
 ## Features
 
 - Extract dominant colors from any image format supported by GD
+- Accepts a file path, raw image data or a `GdImage`
 - Configurable number of colors to extract
 - Adjustable granularity for performance vs. accuracy tradeoff
 - Fluent interface for easy chaining
@@ -75,6 +76,18 @@ Set the path to the image file to analyze.
 
 **Throws:** `Exception` if the file doesn't exist.
 
+#### `setImageFromString(string $data): self`
+
+Set the image from raw image data, such as an uploaded file or a response body. The data is decoded straight away.
+
+**Throws:** `Exception` if the data isn't an image GD can read.
+
+#### `setImageFromGd(GdImage $image): self`
+
+Set the image from an existing GD image, e.g. one you've already resized or cropped.
+
+Each `setImage*()` call replaces any image set previously.
+
 #### `setTotalColors(int $totalColors = 10): self`
 
 Set the number of dominant colors to extract.
@@ -119,6 +132,23 @@ foreach ($palette as $color) {
     );
 }
 echo '</div>';
+```
+
+### Image from a URL or Upload
+
+The library doesn't download images itself. Fetch the image with your own HTTP client (so you control timeouts, size limits and which hosts are allowed) and pass the bytes in:
+
+```php
+<?php
+
+use PHPColorExtractor\PHPColorExtractor;
+
+// e.g. with Guzzle
+$body = (string) $httpClient->get('https://example.com/photo.jpg')->getBody();
+
+$palette = (new PHPColorExtractor())
+    ->setImageFromString($body)
+    ->extractPalette();
 ```
 
 ### Fast Preview (Low Accuracy)

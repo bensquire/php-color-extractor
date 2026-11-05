@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PHPColorExtractor;
 
 use Exception;
+use GdImage;
 
 /**
  * A simple class to extract the main colour palette of an image
@@ -14,24 +15,55 @@ use Exception;
  */
 class PHPColorExtractor
 {
-    protected ?string $image = null;
+    protected ?string $imagePath = null;
+    private ?GdImage $gdImage = null;
     protected int $totalColors = 10;
     protected int $granularity = 5;
 
     /**
      * Set the image we want to extract the colours from
      *
-     * @param string $image
+     * @param string $image Path to the image file
      * @return $this
      * @throws Exception
      */
     public function setImage(string $image): self
     {
-        if (!file_exists($image)) {
+        if (!is_file($image)) {
             throw new Exception('Unable to find provided image');
         }
 
-        $this->image = $image;
+        $this->imagePath = $image;
+        $this->gdImage = null;
+
+        return $this;
+    }
+
+    /**
+     * Set the image from raw image data, e.g. an upload, a storage service
+     * response or the body of an HTTP request you made yourself
+     *
+     * @param string $data Binary image data in any format supported by GD
+     * @return $this
+     * @throws Exception
+     */
+    public function setImageFromString(string $data): self
+    {
+        return $this->setImageFromGd(
+            $this->decodeImage($data, 'Unable to read provided image data', 'Unable to decode provided image data'),
+        );
+    }
+
+    /**
+     * Set the image from an existing GD image
+     *
+     * @param GdImage $image
+     * @return $this
+     */
+    public function setImageFromGd(GdImage $image): self
+    {
+        $this->gdImage = $image;
+        $this->imagePath = null;
 
         return $this;
     }
@@ -80,35 +112,29 @@ class PHPColorExtractor
      */
     public function extractPalette(): array
     {
-        if ($this->image === null) {
+        if ($this->gdImage === null && $this->imagePath === null) {
             throw new Exception('An image must be set before its palette can be extracted.');
         }
 
-        $size = getimagesize($this->image);
-        if ($size === false) {
-            throw new Exception('Unable to get image size data');
-        }
-
-        $imageContent = file_get_contents($this->image);
-        if ($imageContent === false) {
-            throw new Exception('Unable to read image file');
-        }
-
-        $img = imagecreatefromstring($imageContent);
-        if ($img === false) {
-            throw new Exception('Unable to open image file');
-        }
+        $img = $this->gdImage ?? $this->loadImageFromPath($this->imagePath);
+        $width = imagesx($img);
+        $height = imagesy($img);
 
         $colors = [];
 
-        for ($x = 0; $x < $size[0]; $x += $this->granularity) {
-            for ($y = 0; $y < $size[1]; $y += $this->granularity) {
+        for ($x = 0; $x < $width; $x += $this->granularity) {
+            for ($y = 0; $y < $height; $y += $this->granularity) {
                 $colorIndex = imagecolorat($img, $x, $y);
                 if ($colorIndex === false) {
                     continue;
                 }
 
                 $rgb = imagecolorsforindex($img, $colorIndex);
+                if ($rgb['alpha'] === 127) {
+                    // Fully transparent pixels have no visible colour
+                    continue;
+                }
+
                 $red = (int) round(round($rgb['red'] / 0x33) * 0x33);
                 $green = (int) round(round($rgb['green'] / 0x33) * 0x33);
                 $blue = (int) round(round($rgb['blue'] / 0x33) * 0x33);
@@ -124,6 +150,42 @@ class PHPColorExtractor
 
         arsort($colors);
 
-        return \array_slice(array_keys($colors), 0, $this->totalColors);
+        // Hex values made only of digits (e.g. "999999") become integer array keys, so cast back
+        return array_map(strval(...), \array_slice(array_keys($colors), 0, $this->totalColors));
+    }
+
+    /**
+     * Loads the image set via setImage()
+     *
+     * @throws Exception
+     */
+    private function loadImageFromPath(string $path): GdImage
+    {
+        $imageContent = file_get_contents($path);
+        if ($imageContent === false) {
+            throw new Exception('Unable to read image file');
+        }
+
+        return $this->decodeImage($imageContent, 'Unable to get image size data', 'Unable to open image file');
+    }
+
+    /**
+     * Decodes binary image data, throwing the given messages if it isn't a
+     * recognised image or GD can't decode it
+     *
+     * @throws Exception
+     */
+    private function decodeImage(string $data, string $unrecognisedMessage, string $decodeFailedMessage): GdImage
+    {
+        if ($data === '' || getimagesizefromstring($data) === false) {
+            throw new Exception($unrecognisedMessage);
+        }
+
+        $img = imagecreatefromstring($data);
+        if ($img === false) {
+            throw new Exception($decodeFailedMessage);
+        }
+
+        return $img;
     }
 }
