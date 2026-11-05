@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-11-05
+
+Development tooling only; no changes to the library code or its runtime requirements.
+
+### Changed
+- Upgraded PHPUnit from 11.5 to 12.5 (PHPUnit 13 requires PHP 8.4, above this library's 8.3 minimum)
+- Refreshed lockfile for PHPStan and PHP CS Fixer
+- Updated `phpunit.xml` schema to 12.5
+- Bumped GitHub Actions: `actions/checkout` v4 → v7, `actions/cache` v4 → v6
+
 ## [1.0.0] - 2026-11-05
 
 First stable release.
@@ -75,5 +85,6 @@ First stable release.
 - PSR-0 autoloading
 - Basic test coverage
 
+[1.0.1]: https://github.com/bensquire/php-color-extractor/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/bensquire/php-color-extractor/compare/0.0.1...1.0.0
 [0.0.1]: https://github.com/bensquire/php-color-extractor/releases/tag/0.0.1
