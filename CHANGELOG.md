@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `setImageFromString(string $data)` to extract a palette from raw image data (uploads, storage responses, images fetched over HTTP by the caller) without writing a temporary file
 - `setImageFromGd(GdImage $image)` to extract a palette from an existing GD image
 
+### Fixed
+- `extractPalette()` returned colours made only of digits (e.g. `999999`, `336699`) as integers instead of strings
+- Fully transparent pixels were counted as a colour (usually `000000`), so images with transparent backgrounds reported black as a dominant colour
+- `setImage()` accepted a directory path, which then failed in `extractPalette()` with a PHP notice and a misleading error
+
 ### Changed
 - Renamed the protected `$image` property to `$imagePath`, since it holds a file path. This only affects classes that extend `PHPColorExtractor` and read the property directly.
 - Images set with `setImage()` are now read from disk once per `extractPalette()` call instead of twice

@@ -29,7 +29,7 @@ class PHPColorExtractor
      */
     public function setImage(string $image): self
     {
-        if (!file_exists($image)) {
+        if (!is_file($image)) {
             throw new Exception('Unable to find provided image');
         }
 
@@ -130,6 +130,11 @@ class PHPColorExtractor
                 }
 
                 $rgb = imagecolorsforindex($img, $colorIndex);
+                if ($rgb['alpha'] === 127) {
+                    // Fully transparent pixels have no visible colour
+                    continue;
+                }
+
                 $red = (int) round(round($rgb['red'] / 0x33) * 0x33);
                 $green = (int) round(round($rgb['green'] / 0x33) * 0x33);
                 $blue = (int) round(round($rgb['blue'] / 0x33) * 0x33);
@@ -145,7 +150,8 @@ class PHPColorExtractor
 
         arsort($colors);
 
-        return \array_slice(array_keys($colors), 0, $this->totalColors);
+        // Hex values made only of digits (e.g. "999999") become integer array keys, so cast back
+        return array_map(strval(...), \array_slice(array_keys($colors), 0, $this->totalColors));
     }
 
     /**

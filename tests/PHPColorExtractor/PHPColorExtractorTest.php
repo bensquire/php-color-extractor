@@ -253,6 +253,56 @@ class PHPColorExtractorTest extends TestCase
         $this->assertSame(['000000'], $palette);
     }
 
+    public function testExtractPaletteReturnsStringsForNumericHexValues(): void
+    {
+        // Arrange
+        $img = $this->createGdImage(10, 10);
+        $grey = imagecolorallocate($img, 0x99, 0x99, 0x99);
+        $this->assertNotFalse($grey);
+        imagefill($img, 0, 0, $grey);
+
+        // Act
+        $palette = (new PHPColorExtractor())->setImageFromGd($img)->extractPalette();
+
+        // Assert
+        $this->assertSame(['999999'], $palette);
+    }
+
+    public function testExtractPaletteIgnoresTransparentPixels(): void
+    {
+        // Arrange: transparent background with 3 columns of red
+        $img = $this->createGdImage(10, 10);
+        imagealphablending($img, false);
+        $transparent = imagecolorallocatealpha($img, 0, 0, 0, 127);
+        $red = imagecolorallocate($img, 255, 0, 0);
+        $this->assertNotFalse($transparent);
+        $this->assertNotFalse($red);
+        imagefill($img, 0, 0, $transparent);
+        imagefilledrectangle($img, 0, 0, 2, 9, $red);
+
+        // Act
+        $palette = (new PHPColorExtractor())
+            ->setImageFromGd($img)
+            ->setGranularity(1)
+            ->extractPalette();
+
+        // Assert
+        $this->assertSame(['FF0000'], $palette);
+    }
+
+    public function testSetImageErrorWithDirectory(): void
+    {
+        // Arrange
+        $object = new PHPColorExtractor();
+
+        // Assert
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Unable to find provided image');
+
+        // Act
+        $object->setImage(__DIR__);
+    }
+
     /**
      * Creates a black truecolor image
      */
