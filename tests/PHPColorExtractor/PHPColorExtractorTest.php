@@ -124,4 +124,70 @@ class PHPColorExtractorTest extends TestCase
 
         $this->assertCount(15, $palette);
     }
+
+    public function testSetImageFromStringMatchesSetImage(): void
+    {
+        $data = file_get_contents('./tests/image/lenna.png');
+        $this->assertIsString($data);
+
+        $fromPath = (new PHPColorExtractor())->setImage('./tests/image/lenna.png')->extractPalette();
+        $fromString = (new PHPColorExtractor())->setImageFromString($data)->extractPalette();
+
+        $this->assertSame($fromPath, $fromString);
+    }
+
+    public function testSetImageFromStringErrorWithInvalidData(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Unable to read provided image data');
+
+        (new PHPColorExtractor())->setImageFromString('not an image');
+    }
+
+    public function testSetImageFromStringErrorWithEmptyData(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Unable to read provided image data');
+
+        (new PHPColorExtractor())->setImageFromString('');
+    }
+
+    public function testSetImageFromGd(): void
+    {
+        $img = imagecreatetruecolor(20, 10);
+        $this->assertNotFalse($img);
+        $red = imagecolorallocate($img, 255, 0, 0);
+        $blue = imagecolorallocate($img, 0, 0, 255);
+        $this->assertNotFalse($red);
+        $this->assertNotFalse($blue);
+        imagefilledrectangle($img, 0, 0, 14, 9, $red);
+        imagefilledrectangle($img, 15, 0, 19, 9, $blue);
+
+        $palette = (new PHPColorExtractor())
+            ->setImageFromGd($img)
+            ->setGranularity(1)
+            ->extractPalette();
+
+        $this->assertSame(['FF0000', '0000FF'], $palette);
+    }
+
+    public function testLatestImageSourceWins(): void
+    {
+        $img = imagecreatetruecolor(4, 4);
+        $this->assertNotFalse($img);
+
+        $palette = (new PHPColorExtractor())
+            ->setImageFromGd($img)
+            ->setImage('./tests/image/lenna.png')
+            ->extractPalette();
+
+        $this->assertSame('CC6666', $palette[0]);
+
+        $palette = (new PHPColorExtractor())
+            ->setImage('./tests/image/lenna.png')
+            ->setImageFromGd($img)
+            ->extractPalette();
+
+        $this->assertSame(['000000'], $palette);
+    }
 }
