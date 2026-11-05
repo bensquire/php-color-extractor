@@ -5,7 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-11-05
+
+First stable release.
+
+### Security
+- Updated development dependencies to resolve Dependabot alerts:
+  - `phpunit/phpunit` 11.5.43 → 11.5.57 (unsafe deserialization in PHPT code coverage handling)
+  - `symfony/process` 7.3.4 → 7.4.22 (argument escaping under MSYS2/Git Bash on Windows)
+  - These were dev-only dependencies and never shipped to consumers of the package.
+
+### Added
+- Dependabot configuration for Composer and GitHub Actions updates
+- `.gitattributes` so tests and tooling config are excluded from the Composer dist archive
+- Release workflow that creates a GitHub release when a version tag is pushed
+- CI coverage for PHP 8.4 and 8.5
+
+### Removed
+- Leftover `.travis.yml`
+- Claude Code GitHub workflows (automated PR review and `@claude` mentions)
+
+## [0.0.1] - 2026-02-28
 
 ### Added
 - PHPStan static analysis with maximum strictness level
@@ -45,14 +65,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Outdated composer installation instructions
 - PSR-0 autoloading support
 
-## [1.0.0] - Historical
+## Pre-release (2014)
 
 ### Added
-- Initial release
+- Initial version
 - Basic color extraction from images
 - Configurable color count
 - Configurable granularity
 - PSR-0 autoloading
 - Basic test coverage
 
-[Unreleased]: https://github.com/bensquire/php-color-extractor/compare/master...HEAD
+[1.0.0]: https://github.com/bensquire/php-color-extractor/compare/0.0.1...1.0.0
+[0.0.1]: https://github.com/bensquire/php-color-extractor/releases/tag/0.0.1

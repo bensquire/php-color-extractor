@@ -1,6 +1,7 @@
 # PHP Color Extractor
 
 [![Tests](https://github.com/bensquire/php-color-extractor/workflows/Tests/badge.svg)](https://github.com/bensquire/php-color-extractor/actions)
+[![Latest Version](https://img.shields.io/packagist/v/bensquire/php-color-extractor.svg)](https://packagist.org/packages/bensquire/php-color-extractor)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen.svg)](https://phpstan.org/)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.3-blue.svg)](https://php.net)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -19,7 +20,7 @@ A modern PHP library to extract the dominant color palette from images.
 
 ## Requirements
 
-- PHP 8.3 or 8.4
+- PHP 8.3 or newer (tested on 8.3, 8.4 and 8.5)
 - GD extension
 
 ## Installation
