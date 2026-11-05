@@ -23,6 +23,7 @@ First stable release.
 
 ### Removed
 - Leftover `.travis.yml`
+- Claude Code GitHub workflows (automated PR review and `@claude` mentions)
 
 ## [0.0.1] - 2026-02-28
 
